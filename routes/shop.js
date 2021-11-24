@@ -1,9 +1,12 @@
 const express = require("express");
-const Shop = require("../models/shop");
 const router = express.Router();
+const { Shop, validateShop } = require("../models/shop");
 
 //POST CREATE A NEW SHOP
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
+    const error = await validateShop(req.body);
+    if (error.message) res.status(400).send(error.message);
+
     shop = new Shop({
         name: req.body.shopName,
         author: {
@@ -12,12 +15,11 @@ router.post("/", (req, res) => {
         },
         genre: req.body.genre
     });
-    shop
-        .save()
+    shop.save()
         .then((shop) => {
             res.send(shop);
         }).catch((error) => {
-            res.status(500).send("Shop was not stord in db");
+            res.status(500).send("Shop was not stored in db");
         });
 });
 
